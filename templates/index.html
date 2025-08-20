@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jon Oil & Gas Enterprise</title>
+</head>
+<body>
+    <h1>Welcome to Jon Oil & Gas Enterprise!</h1>
+    <p>Your Flask app is running successfully.</p>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jon Oil & Gas Enterprise</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Welcome to Jon Oil & Gas Enterprise!</h1>
+    <p>Your Flask app is running successfully.</p>
+</body>
+</html>
+<form action="/submit_contact" method="POST">
+  <input type="text" name="name" placeholder="Your Name" required>
+  <input type="email" name="email" placeholder="Your Email" required>
+  <textarea name="message" placeholder="Your Message" required></textarea>
+  <button type="submit">Send</button>
+</form>
