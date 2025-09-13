@@ -1,60 +1,116 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
+import os
+import sqlite3
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 
-# Initialize Flask app
 app = Flask(__name__)
+app.secret_key = "super_secret_key"
 
-# Configure the database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# -------------------
+# DATABASE CONNECTION
+# -------------------
+BASE_DIR = os.path.dirname(__file__)
+DB_PATH = os.path.join(BASE_DIR, "db", "jon_oil_gas.db")
 
-# Secret key for flash messages
-app.config['SECRET_KEY'] = 'my_secret_key'
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-# Initialize database
-db = SQLAlchemy(app)
-
-# Contact Model
-class Contact(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
-    message = db.Column(db.Text, nullable=False)
-
-    def __repr__(self):
-        return f"<Contact {self.name}>"
-
-# Route for homepage
+# -------------------
+# HOME PAGE
+# -------------------
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return redirect(url_for("products"))
 
-# Contact route
-@app.route("/contact", methods=["GET", "POST"])
-def contact():
+# -------------------
+# PRODUCTS PAGE
+# -------------------
+@app.route("/products")
+def products():
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("SELECT id, name, price, description, image FROM products")
+    products = c.fetchall()
+    conn.close()
+    return render_template("products.html", products=products)
+
+# -------------------
+# REGISTER PAGE
+# -------------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
     if request.method == "POST":
+        name = request.form["username"]
+        email = request.form["email"]
+        password = request.form["password"]
+
         try:
-            name = request.form["name"]
-            email = request.form["email"]
-            message = request.form["message"]
+            conn = get_db_connection()
+            c = conn.cursor()
+            c.execute(
+                "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+                (name, email, password)
+            )
+            conn.commit()
+            conn.close()
+            flash("Registration successful! You can now login.", "success")
+            return redirect(url_for("login"))
+        except sqlite3.IntegrityError:
+            flash("Email already exists!", "danger")
+    return render_template("register.html")
 
-            # Save to database
-            new_message = Contact(name=name, email=email, message=message)
-            db.session.add(new_message)
-            db.session.commit()
+# -------------------
+# LOGIN PAGE
+# -------------------
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
 
-            # Success message
-            flash("Your message has been sent successfully!", "success")
-            return redirect(url_for("contact"))
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute("SELECT * FROM users WHERE email=? AND password_hash=?", (email, password))
+        user = c.fetchone()
+        conn.close()
 
-        except Exception as e:
-            # If there's an error, show an error message
-            flash(f"Something went wrong: {e}", "error")
-            return redirect(url_for("contact"))
+        if user:
+            session["user_id"] = user["id"]
+            session["username"] = user["name"]
+            flash("Login successful!", "success")
+            return redirect(url_for("products"))
+        else:
+            flash("Invalid email or password!", "danger")
+    return render_template("login.html")
 
+# -------------------
+# LOGOUT
+# -------------------
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("You have been logged out!", "info")
+    return redirect(url_for("home"))
+
+# -------------------
+# PAYMENT PAGE
+# -------------------
+@app.route("/payment")
+def payment():
+    return render_template("payment.html")
+
+# -------------------
+# CONTACT PAGE
+# -------------------
+@app.route("/contact")
+def contact():
     return render_template("contact.html")
 
+# -------------------
+# START SERVER
+# -------------------
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
+    if not os.path.exists("db"):
+        os.makedirs("db")
     app.run(debug=True)

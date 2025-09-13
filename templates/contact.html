@@ -4,132 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us - Jon Oil & Gas Enterprise</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             margin: 0;
-            padding: 0;
         }
-
         .container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
+            width: 420px;
             background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
         }
-
-        h1 {
+        h2 {
             text-align: center;
-            color: #333;
+            color: #2c3e50;
+            margin-bottom: 20px;
         }
-
-        /* Flash message styling */
-        .flash-message {
-            padding: 10px;
-            border-radius: 5px;
+        .alert {
+            padding: 12px;
             margin-bottom: 15px;
+            border-radius: 6px;
+            font-size: 14px;
             text-align: center;
-            color: white;
         }
-
-        .flash-success {
-            background-color: green;
-        }
-
-        .flash-error {
-            background-color: red;
-        }
-
+        .alert.success { background-color: #27ae60; color: white; }
+        .alert.danger { background-color: #e74c3c; color: white; }
         form {
             display: flex;
             flex-direction: column;
         }
-
-        label {
-            font-weight: bold;
-            margin: 10px 0 5px;
-        }
-
         input, textarea {
-            padding: 10px;
+            padding: 12px;
+            margin: 10px 0;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            margin-bottom: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
         }
-
-        textarea {
-            resize: none;
-            height: 100px;
+        input:focus, textarea:focus {
+            border-color: #3498db;
+            outline: none;
         }
-
         button {
             padding: 12px;
-            border: none;
-            background: #007BFF;
-            color: white;
-            font-size: 18px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        button:hover {
-            background: #0056b3;
-        }
-
-        .back-home {
-            text-align: center;
             margin-top: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
         }
-
-        .back-home a {
-            text-decoration: none;
-            color: #007BFF;
-            font-weight: bold;
+        button:hover {
+            background-color: #2980b9;
         }
-
-        .back-home a:hover {
-            text-decoration: underline;
+        @media (max-width: 480px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Contact Us</h1>
+        <h2>Contact Us</h2>
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% with messages = get_flashed_messages(with_categories=True) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="flash-message {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">
-                        {{ message }}
-                    </div>
+                    <div class="alert {{ category }}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        <!-- Contact Form -->
-        <form action="{{ url_for('contact') }}" method="POST">
-            <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" placeholder="Enter your full name" required>
-
-            <label for="email">Email Address</label>
-            <input type="email" id="email" name="email" placeholder="Enter your email" required>
-
-            <label for="message">Your Message</label>
-            <textarea id="message" name="message" placeholder="Write your message here..." required></textarea>
-
+        <form method="POST" action="{{ url_for('contact') }}">
+            <input type="text" name="name" placeholder="Your Name" required>
+            <input type="email" name="email" placeholder="Your Email" required>
+            <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
             <button type="submit">Send Message</button>
         </form>
-
-        <div class="back-home">
-            <a href="{{ url_for('home') }}">← Back to Home</a>
-        </div>
     </div>
 </body>
 </html>
-

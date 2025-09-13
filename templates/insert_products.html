@@ -1,0 +1,27 @@
+import sqlite3
+
+# Connect to database
+conn = sqlite3.connect("db/jon_oil_gas.db")
+c = conn.cursor()
+
+# Products data
+products = [
+    ("Cooking Gas 12kg", "cooking-gas-12kg", "12kg refillable cooking gas cylinder.", 15000, 10, "gas12.jpg"),
+    ("Engine Oil 5L", "engine-oil-5l", "Premium synthetic engine oil, 5 liters.", 12000, 15, "engineoil5l.jpg"),
+    ("Diesel 50L", "diesel-50l", "50 liters of diesel for generators.", 45000, 8, "diesel50l.jpg"),
+    ("Gas Burner", "gas-burner", "Portable double gas burner, high efficiency.", 8000, 20, "gasburner.jpg"),
+    ("Generator 3.5KVA", "generator-3-5kva", "3.5KVA power generator, low fuel consumption.", 180000, 5, "generator3_5kva.jpg")
+]
+
+# Insert products
+for product in products:
+    c.execute("""
+        INSERT OR REPLACE INTO products (name, slug, description, price_kobo, stock, image)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, product)
+
+# Save and close
+conn.commit()
+conn.close()
+
+print("✅ Products inserted successfully with images!")

@@ -1,0 +1,11 @@
+<h1>Dashboard</h1>
+{% if is_premium %}
+    <p>Welcome Premium User 🎉 You now have full access!</p>
+{% else %}
+    <p>You are on the free plan. Upgrade now to access premium features!</p>
+    <form action="/pay" method="POST">
+        <input type="number" name="amount" placeholder="Enter amount (₦)" required>
+        <button type="submit">Upgrade to Premium</button>
+    </form>
+{% endif %}
+<a href="/logout">Logout</a>
